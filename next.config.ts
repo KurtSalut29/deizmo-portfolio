@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // 90 is used for screenshots, the portrait, and full-size certificates.
+    qualities: [75, 90],
+  },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

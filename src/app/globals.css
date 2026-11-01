@@ -1,26 +1,441 @@
 @import "tailwindcss";
 
+/*
+  Jhuana's dark mode concept is the primary look:
+  very dark navy background, dark gray-navy cards, off-white text, blue buttons,
+  gray secondary text. Light mode is derived from the same blues.
+
+  Buttons use #2F6BF0 so white labels stay readable (about 4.6:1). Small blue text on
+  the dark background uses the lighter --c-accent so it stays readable there too.
+
+  Theme tokens: dark values on :root (the default), light under [data-theme="light"].
+*/
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --c-page: #0a0f1e;
+  --c-surface: #151c2e;
+  --c-raised: #1b2338;
+  --c-text: #eef1f7;
+  --c-muted: #8e97ab;
+  --c-line: #252e45;
+  --c-blue: #2f6bf0;
+  --c-blue-hover: #4a80f5;
+  --c-accent: #7ea8ff;
+  --c-guide: rgb(255 255 255 / 0.06);
+  --c-glow: rgb(47 107 240 / 0.35);
+  --c-edge-top: rgb(255 255 255 / 0.14);
+  --c-edge-bottom: rgb(255 255 255 / 0.03);
+  --c-grad-from: #ffffff;
+  --c-grad-to: #7ea8ff;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --c-page: #f4f6fb;
+  --c-surface: #ffffff;
+  --c-raised: #eef2f9;
+  --c-text: #0e1526;
+  --c-muted: #5b657a;
+  --c-line: #dfe4ee;
+  --c-blue: #2f6bf0;
+  --c-blue-hover: #1f56d6;
+  --c-accent: #2f6bf0;
+  --c-guide: rgb(14 21 38 / 0.07);
+  --c-glow: rgb(47 107 240 / 0.22);
+  --c-edge-top: rgb(14 21 38 / 0.12);
+  --c-edge-bottom: rgb(14 21 38 / 0.06);
+  --c-grad-from: #0e1526;
+  --c-grad-to: #2f6bf0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-page: var(--c-page);
+  --color-surface: var(--c-surface);
+  --color-raised: var(--c-raised);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-blue: var(--c-blue);
+  --color-blue-hover: var(--c-blue-hover);
+  --color-accent: var(--c-accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --font-display: var(--font-rh-display);
+  --font-sans: var(--font-rh-text);
+  --font-mono: var(--font-rh-mono);
+
+  --ease-snap: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 1.25rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--c-page);
+    color: var(--c-muted);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--c-text);
+    font-family: var(--font-display), system-ui, sans-serif;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--c-blue);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Large screens: leave room for the pinned navbar when jumping to a section. */
+@media (min-width: 64rem) {
+  html {
+    scroll-padding-top: 6.75rem;
+  }
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+@page {
+  size: A4;
+  margin: 14mm 16mm;
+}
+
+/*
+  Layout-grid guides: the thin column lines a front-end developer lays out a page on.
+  Each line draws down from the top on load, one after another (--i staggers them).
+*/
+@keyframes guide-draw {
+  from {
+    scale: 1 0;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+.guide {
+  transform-origin: top;
+  background: linear-gradient(180deg, var(--c-guide), var(--c-guide) 70%, transparent);
+  animation: guide-draw 1.4s var(--ease-snap) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/*
+  Panels: dark cards lit from above. The 1px border is a gradient (brighter on top),
+  which gives the flat dark UI a sense of depth.
+*/
+.panel {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--c-surface), var(--c-surface)) padding-box,
+    linear-gradient(180deg, var(--c-edge-top), var(--c-edge-bottom)) border-box;
+}
+
+.panel-hover {
+  transition:
+    translate 0.5s var(--ease-snap),
+    box-shadow 0.5s var(--ease-snap);
+}
+
+.panel-hover:hover {
+  translate: 0 -4px;
+  box-shadow: 0 30px 60px -34px var(--c-glow);
+}
+
+/*
+  Frosted glass for the compact navbar: a see-through tint that blurs and brightens
+  whatever scrolls underneath, a bright hairline edge, a highlight along the top, and
+  a faint diagonal sheen.
+*/
+.nav-glass {
+  background:
+    linear-gradient(115deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.02) 40%, rgb(255 255 255 / 0.06)),
+    rgb(12 19 38 / 0.62);
+  border-color: rgb(255 255 255 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    inset 0 -1px 0 rgb(255 255 255 / 0.04),
+    0 20px 50px -20px rgb(0 0 0 / 0.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8) brightness(0.9);
+  backdrop-filter: blur(22px) saturate(1.8) brightness(0.9);
+}
+
+/* Links on the dark glass are brighter than the page's gray, so they read over anything. */
+.nav-glass ul a:not([aria-current]) {
+  color: rgb(255 255 255 / 0.78);
+}
+
+[data-theme="light"] .nav-glass ul a:not([aria-current]) {
+  color: #3d475c;
+}
+
+.nav-glass ul a:not([aria-current]):hover {
+  color: var(--c-text);
+}
+
+[data-theme="light"] .nav-glass {
+  -webkit-backdrop-filter: blur(16px) saturate(2);
+  backdrop-filter: blur(16px) saturate(2);
+  background:
+    linear-gradient(115deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.12) 45%, rgb(255 255 255 / 0.45)),
+    rgb(196 214 250 / 0.38);
+  border-color: rgb(255 255 255 / 0.85);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    inset 0 -1px 0 rgb(47 107 240 / 0.08),
+    0 0 0 1px rgb(47 107 240 / 0.16),
+    0 18px 44px -18px rgb(30 60 140 / 0.4);
+}
+
+/* Small glass buttons inside the navbar. */
+.glass-chip {
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.14);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+[data-theme="light"] .glass-chip {
+  background: rgb(255 255 255 / 0.55);
+  border-color: rgb(255 255 255 / 0.9);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+/* Off-white to blue gradient text for key phrases. */
+.text-gradient {
+  background: linear-gradient(100deg, var(--c-grad-from) 10%, var(--c-grad-to) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Grid guides fade out toward the edges so the grid reads as intentional. */
+.guides-mask {
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 35%, #000 30%, transparent 85%);
+}
+
+/* Aurora: two soft blue lights drifting slowly behind the hero and contact. */
+@keyframes aurora-a {
+  0%,
+  100% {
+    translate: 0 0;
+    scale: 1;
+  }
+  50% {
+    translate: -8% 6%;
+    scale: 1.12;
+  }
+}
+
+@keyframes aurora-b {
+  0%,
+  100% {
+    translate: 0 0;
+    scale: 1.05;
+  }
+  50% {
+    translate: 10% -5%;
+    scale: 0.92;
+  }
+}
+
+.aurora-a {
+  animation: aurora-a 18s ease-in-out infinite;
+}
+
+.aurora-b {
+  animation: aurora-b 22s ease-in-out infinite;
+}
+
+/* Portrait frame: a thin blue light runs around the border. */
+@property --spin {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin-border {
+  to {
+    --spin: 360deg;
+  }
+}
+
+.ring-light {
+  background: conic-gradient(
+    from var(--spin),
+    transparent 0deg,
+    var(--c-blue) 60deg,
+    #9cc0ff 90deg,
+    transparent 150deg,
+    transparent 360deg
+  );
+  animation: spin-border 6s linear infinite;
+}
+
+/* ───────────── Page-load sequence ───────────── */
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.enter {
+  animation: enter 0.9s var(--ease-snap) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 500ms);
+}
+
+/* The name slides up from behind a mask, line by line. */
+@keyframes line-up {
+  from {
+    translate: 0 110%;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.line-mask > span {
+  display: block;
+  animation: line-up 1.1s var(--ease-snap) both;
+  animation-delay: calc(var(--i, 0) * 120ms + 300ms);
+}
+
+/* ───────────── Scroll effects ───────────── */
+
+/*
+  Elements with data-reveal rise into place when they scroll into view
+  (reveal-observer.tsx sets data-shown). Only with JS, so content never stays hidden.
+*/
+.js [data-reveal] {
+  opacity: 0;
+  translate: 0 28px;
+  transition:
+    opacity 0.8s var(--ease-snap),
+    translate 1s var(--ease-snap);
+  transition-delay: calc(var(--d, 0) * 1ms);
+}
+
+.js [data-reveal][data-shown] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* The project screen starts tilted back and straightens as it scrolls into view. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes straighten {
+      from {
+        transform: perspective(1400px) rotateX(16deg) scale(0.94);
+      }
+      to {
+        transform: perspective(1400px) rotateX(0deg) scale(1);
+      }
+    }
+
+    .tilt-in {
+      transform-origin: 50% 100%;
+      animation: straighten linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+  }
+}
+
+/* Viewer dialog. */
+.viewer {
+  opacity: 0;
+  translate: 0 28px;
+  transition:
+    opacity 0.35s var(--ease-snap),
+    translate 0.5s var(--ease-snap),
+    overlay 0.5s allow-discrete,
+    display 0.5s allow-discrete;
+}
+
+.viewer[open] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@starting-style {
+  .viewer[open] {
+    opacity: 0;
+    translate: 0 28px;
+  }
+}
+
+.viewer::backdrop {
+  background: rgb(5 8 18 / 0);
+  transition:
+    background-color 0.35s,
+    overlay 0.5s allow-discrete,
+    display 0.5s allow-discrete;
+}
+
+.viewer[open]::backdrop {
+  background: rgb(5 8 18 / 0.72);
+}
+
+@starting-style {
+  .viewer[open]::backdrop {
+    background: rgb(5 8 18 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js [data-reveal] {
+    opacity: 1 !important;
+    translate: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
 }

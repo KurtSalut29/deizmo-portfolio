@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0A0F1E"/>
+  <g stroke="#2F6BF0" stroke-opacity="0.45" stroke-width="1.5">
+    <path d="M16 8v48M32 8v48M48 8v48"/>
+  </g>
+  <text x="32" y="41" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="800" fill="#EEF1F7">JD</text>
+</svg>
